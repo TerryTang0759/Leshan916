@@ -1,0 +1,426 @@
+[
+  {
+    "category": "cabinet",
+    "id": "cab_001",
+    "name": "标准密度板 18mm",
+    "brand": "乐山家具",
+    "price": 280,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "cabinet", 
+    "id": "cab_002",
+    "name": "高密度板 18mm",
+    "brand": "乐山家具",
+    "price": 320,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "cabinet",
+    "id": "cab_003", 
+    "name": "实木颗粒板 18mm",
+    "brand": "乐山家具",
+    "price": 350,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "cabinet",
+    "id": "cab_004",
+    "name": "多层实木板 18mm", 
+    "brand": "乐山家具",
+    "price": 420,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "cabinet",
+    "id": "cab_005",
+    "name": "生态免漆板 18mm",
+    "brand": "乐山家具", 
+    "price": 380,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "cabinet",
+    "id": "cab_006",
+    "name": "进口爱格板 18mm",
+    "brand": "乐山家具",
+    "price": 480,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "doorPanel",
+    "id": "door_001",
+    "name": "标准门板 免漆",
+    "brand": "乐山家具",
+    "price": 320,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "doorPanel",
+    "id": "door_002", 
+    "name": "吸塑门板 PVC",
+    "brand": "乐山家具",
+    "price": 380,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "doorPanel",
+    "id": "door_003",
+    "name": "烤漆门板 高光",
+    "brand": "乐山家具",
+    "price": 450,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "doorPanel",
+    "id": "door_004",
+    "name": "实木贴皮门板",
+    "brand": "乐山家具",
+    "price": 520,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "doorPanel",
+    "id": "door_005",
+    "name": "玻璃门板 钢化",
+    "brand": "乐山家具",
+    "price": 420,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "doorPanel",
+    "id": "door_006",
+    "name": "铝合金门板",
+    "brand": "乐山家具",
+    "price": 380,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "wallpanel",
+    "id": "wall_001",
+    "name": "标准护墙板 实木",
+    "brand": "乐山家具",
+    "price": 380,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "wallpanel",
+    "id": "wall_002",
+    "name": "欧式护墙板 雕花",
+    "brand": "乐山家具",
+    "price": 580,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "wallpanel",
+    "id": "wall_003",
+    "name": "现代护墙板 免漆",
+    "brand": "乐山家具",
+    "price": 320,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "wallpanel",
+    "id": "wall_004",
+    "name": "软包护墙板 皮革",
+    "brand": "乐山家具",
+    "price": 680,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "door",
+    "id": "indoordoor_001",
+    "name": "标准室内门 免漆",
+    "brand": "乐山家具",
+    "price": 1200,
+    "unit": "元/樘"
+  },
+  {
+    "category": "door",
+    "id": "indoordoor_002",
+    "name": "实木复合门",
+    "brand": "乐山家具",
+    "price": 1800,
+    "unit": "元/樘"
+  },
+  {
+    "category": "door",
+    "id": "indoordoor_003",
+    "name": "实木门 橡木",
+    "brand": "乐山家具",
+    "price": 2800,
+    "unit": "元/樘"
+  },
+  {
+    "category": "door",
+    "id": "indoordoor_004",
+    "name": "玻璃门 钢化玻璃",
+    "brand": "乐山家具",
+    "price": 1500,
+    "unit": "元/樘"
+  },
+  {
+    "category": "door",
+    "id": "indoordoor_005",
+    "name": "推拉门 铝合金",
+    "brand": "乐山家具",
+    "price": 800,
+    "unit": "元/樘"
+  },
+  {
+    "category": "column",
+    "id": "col_001",
+    "name": "欧式罗马柱 石膏",
+    "brand": "乐山家具",
+    "price": 280,
+    "unit": "元/米"
+  },
+  {
+    "category": "column",
+    "id": "col_002",
+    "name": "现代简约柱 大理石",
+    "brand": "乐山家具",
+    "price": 680,
+    "unit": "元/米"
+  },
+  {
+    "category": "column",
+    "id": "col_003",
+    "name": "装饰柱 PU材质",
+    "brand": "乐山家具",
+    "price": 180,
+    "unit": "元/米"
+  },
+  {
+    "category": "column",
+    "id": "col_004",
+    "name": "实木罗马柱",
+    "brand": "乐山家具",
+    "price": 580,
+    "unit": "元/米"
+  },
+  {
+    "category": "lighting",
+    "id": "light_001",
+    "name": "LED灯带 暖白",
+    "brand": "乐山家具",
+    "price": 25,
+    "unit": "元/米"
+  },
+  {
+    "category": "lighting",
+    "id": "light_002",
+    "name": "LED灯带 冷白",
+    "brand": "乐山家具",
+    "price": 25,
+    "unit": "元/米"
+  },
+  {
+    "category": "lighting",
+    "id": "light_003",
+    "name": "RGB彩色灯带",
+    "brand": "乐山家具",
+    "price": 45,
+    "unit": "元/米"
+  },
+  {
+    "category": "lighting",
+    "id": "light_004",
+    "name": "线性灯具",
+    "brand": "乐山家具",
+    "price": 120,
+    "unit": "元/米"
+  },
+  {
+    "category": "lighting",
+    "id": "light_005",
+    "name": "嵌入式灯带",
+    "brand": "乐山家具",
+    "price": 80,
+    "unit": "元/米"
+  },
+  {
+    "category": "stone",
+    "id": "stone_001",
+    "name": "天然大理石",
+    "brand": "乐山家具",
+    "price": 680,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "stone",
+    "id": "stone_002",
+    "name": "人造石英石",
+    "brand": "乐山家具",
+    "price": 480,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "stone",
+    "id": "stone_003",
+    "name": "岩板 陶瓷",
+    "brand": "乐山家具",
+    "price": 580,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "stone",
+    "id": "stone_004",
+    "name": "花岗岩",
+    "brand": "乐山家具",
+    "price": 380,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "stone",
+    "id": "stone_005",
+    "name": "进口岩板",
+    "brand": "乐山家具",
+    "price": 880,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "island",
+    "id": "island_001",
+    "name": "标准橱柜岛台",
+    "brand": "乐山家具",
+    "price": 1200,
+    "unit": "元/延米"
+  },
+  {
+    "category": "island",
+    "id": "island_002",
+    "name": "大理石台面岛台",
+    "brand": "乐山家具",
+    "price": 1800,
+    "unit": "元/延米"
+  },
+  {
+    "category": "island",
+    "id": "island_003",
+    "name": "不锈钢岛台",
+    "brand": "乐山家具",
+    "price": 1500,
+    "unit": "元/延米"
+  },
+  {
+    "category": "island",
+    "id": "island_004",
+    "name": "实木岛台",
+    "brand": "乐山家具",
+    "price": 2200,
+    "unit": "元/延米"
+  },
+  {
+    "category": "baseboard",
+    "id": "base_001",
+    "name": "标准踢脚线 PVC",
+    "brand": "乐山家具",
+    "price": 35,
+    "unit": "元/米"
+  },
+  {
+    "category": "baseboard",
+    "id": "base_002",
+    "name": "实木踢脚线",
+    "brand": "乐山家具",
+    "price": 55,
+    "unit": "元/米"
+  },
+  {
+    "category": "baseboard",
+    "id": "base_003",
+    "name": "铝合金踢脚线",
+    "brand": "乐山家具",
+    "price": 45,
+    "unit": "元/米"
+  },
+  {
+    "category": "baseboard",
+    "id": "base_004",
+    "name": "不锈钢踢脚线",
+    "brand": "乐山家具",
+    "price": 65,
+    "unit": "元/米"
+  },
+  {
+    "category": "hardware",
+    "id": "hard_001",
+    "name": "标准铰链 冷轧钢",
+    "brand": "乐山家具",
+    "price": 25,
+    "unit": "元/个"
+  },
+  {
+    "category": "hardware",
+    "id": "hard_002",
+    "name": "缓冲铰链 液压",
+    "brand": "乐山家具",
+    "price": 35,
+    "unit": "元/个"
+  },
+  {
+    "category": "hardware",
+    "id": "hard_003",
+    "name": "进口铰链 海蒂诗",
+    "brand": "乐山家具",
+    "price": 45,
+    "unit": "元/个"
+  },
+  {
+    "category": "hardware",
+    "id": "hard_004",
+    "name": "标准拉手 合金",
+    "brand": "乐山家具",
+    "price": 15,
+    "unit": "元/个"
+  },
+  {
+    "category": "hardware",
+    "id": "hard_005",
+    "name": "隐形拉手 铝合金",
+    "brand": "乐山家具",
+    "price": 25,
+    "unit": "元/个"
+  },
+  {
+    "category": "hardware",
+    "id": "hard_006",
+    "name": "实木拉手 橡木",
+    "brand": "乐山家具",
+    "price": 35,
+    "unit": "元/个"
+  },
+  {
+    "category": "glass",
+    "id": "glass_001",
+    "name": "透明钢化玻璃 5mm",
+    "brand": "乐山家具",
+    "price": 120,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "glass",
+    "id": "glass_002",
+    "name": "磨砂玻璃 6mm",
+    "brand": "乐山家具",
+    "price": 150,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "glass",
+    "id": "glass_003",
+    "name": "夹胶玻璃 8mm",
+    "brand": "乐山家具",
+    "price": 200,
+    "unit": "元/㎡"
+  },
+  {
+    "category": "glass",
+    "id": "glass_004",
+    "name": "艺术玻璃 装饰",
+    "brand": "乐山家具",
+    "price": 280,
+    "unit": "元/㎡"
+  }
+]

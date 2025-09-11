@@ -1,0 +1,32 @@
+{
+  "name": "leshan-furniture-system",
+  "version": "1.0.0",
+  "description": "乐山家具定制报价系统 - 前后端整合版",
+  "main": "server.js",
+  "engines": {
+    "node": ">=16.x"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step required'",
+    "import-prices": "node import-prices.js",
+    "import-csv": "node import-csv.js",
+    "vercel-build": "echo 'Build completed'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongodb": "^5.0.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0"
+  },
+  "devDependencies": {},
+  "keywords": ["furniture", "quote", "mongodb", "express", "vercel", "serverless"],
+  "author": "乐山家具定制团队",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/leshan-furniture-system.git"
+  },
+  "homepage": "https://your-app.vercel.app"
+}
