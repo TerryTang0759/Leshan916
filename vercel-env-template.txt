@@ -1,0 +1,30 @@
+# Vercel 环境变量配置模板
+# 在Vercel项目设置中添加以下环境变量
+
+# 基本配置
+NODE_ENV=production
+
+# MongoDB 连接配置
+# 请替换为您的实际MongoDB连接信息
+MONGODB_USERNAME=your_mongodb_username
+MONGODB_PASSWORD=your_mongodb_password
+MONGODB_CLUSTER=your_mongodb_cluster
+MONGODB_DATABASE=leshan_furniture
+MONGODB_COLLECTION=prices
+
+# 服务器配置
+PORT=3000
+HOST=0.0.0.0
+
+# 示例配置（请根据实际情况修改）
+# MONGODB_USERNAME=leshan_user
+# MONGODB_PASSWORD=your_secure_password_here
+# MONGODB_CLUSTER=cluster0.abc123.mongodb.net
+# MONGODB_DATABASE=leshan_furniture
+# MONGODB_COLLECTION=prices
+
+# 注意事项：
+# 1. 不要在代码中硬编码这些敏感信息
+# 2. 确保MongoDB用户有适当的权限
+# 3. 建议使用强密码
+# 4. 定期更新密码
