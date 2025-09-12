@@ -1,24 +1,41 @@
-// Vercel API入口文件
+// Vercel Serverless Function
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const path = require('path');
-const config = require('../config');
 
 const app = express();
 
 // 中间件
 app.use(cors());
 app.use(express.json());
+
+// 静态文件服务
 app.use(express.static(path.join(__dirname, '../public')));
 
 // MongoDB连接配置
-const mongoConfig = config.mongodb;
+const mongoConfig = {
+  username: process.env.MONGODB_USERNAME || 'terry07590759',
+  password: process.env.MONGODB_PASSWORD || 'Na0E6iNR4p3gGNg1',
+  cluster: process.env.MONGODB_CLUSTER || 'cluster0.zqsy7.mongodb.net',
+  defaultDbName: process.env.MONGODB_DATABASE || 'Leshan20250911',
+  priceCollectionName: process.env.MONGODB_COLLECTION || 'price_template'
+};
+
 const uri = `mongodb+srv://${mongoConfig.username}:${mongoConfig.password}@${mongoConfig.cluster}/`;
 
-// 首页路由 - 提供报价系统
+// 首页路由
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'index.html'));
+});
+
+// API路由 - 健康检查
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
 });
 
 // API路由 - 获取所有价格数据
@@ -153,18 +170,10 @@ app.get('/api/prices/categories', async (req, res) => {
   }
 });
 
-// 健康检查接口
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
-});
-
 // 处理所有其他路由，返回首页
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
+// 导出Express应用
 module.exports = app;

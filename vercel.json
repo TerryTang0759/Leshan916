@@ -1,24 +1,31 @@
 {
   "version": 2,
-  "name": "leshan-furniture-system",
   "builds": [
     {
+      "src": "public/**/*",
+      "use": "@vercel/static"
+    },
+    {
       "src": "api/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/home.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "/api/index.js"
+    },
+    {
+      "src": "/",
+      "dest": "/api/home.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "api/index.js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
