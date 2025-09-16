@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB连接测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .test-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-btn:hover {
+            background: #5a6fd8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 MongoDB连接测试</h1>
+        <p>测试EdgeOne Pages的MongoDB连接和API功能</p>
+        
+        <div>
+            <button class="test-btn" onclick="testAPI('/api/prices')">测试 /api/prices</button>
+            <button class="test-btn" onclick="testAPI('/health')">测试 /health</button>
+            <button class="test-btn" onclick="testAPI('/')">测试首页</button>
+            <button class="test-btn" onclick="testDirectMongoDB()">直接测试MongoDB</button>
+        </div>
+        
+        <div id="testResult" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function testAPI(endpoint) {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '正在测试 ' + endpoint + '...';
+            resultDiv.className = 'result';
+            
+            try {
+                console.log('测试API:', endpoint);
+                const response = await fetch(endpoint);
+                console.log('响应状态:', response.status);
+                console.log('响应头:', response.headers);
+                
+                const data = await response.text();
+                console.log('响应内容:', data);
+                
+                resultDiv.innerHTML = `
+测试端点: ${endpoint}
+响应状态: ${response.status}
+响应头: ${JSON.stringify([...response.headers.entries()], null, 2)}
+响应内容:
+${data}
+                `;
+                
+                resultDiv.className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                console.error('API测试错误:', error);
+                resultDiv.innerHTML = `
+测试端点: ${endpoint}
+错误: ${error.message}
+堆栈: ${error.stack}
+                `;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        async function testDirectMongoDB() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '正在直接测试MongoDB连接...';
+            resultDiv.className = 'result';
+            
+            try {
+                // 直接测试MongoDB连接
+                const response = await fetch('/api/prices', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+MongoDB直接连接测试:
+状态: 成功
+数据条数: ${data.count || 0}
+数据示例: ${JSON.stringify(data.data?.slice(0, 3), null, 2)}
+完整响应: ${JSON.stringify(data, null, 2)}
+                `;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `
+MongoDB直接连接测试:
+错误: ${error.message}
+详细信息: ${error.stack}
+                `;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // 页面加载时自动测试
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('MongoDB连接测试页面加载完成');
+            testAPI('/health');
+        });
+    </script>
+</body>
+</html>

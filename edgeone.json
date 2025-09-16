@@ -14,6 +14,11 @@
   },
   "redirects": [
     {
+      "source": "/api/*",
+      "destination": "/index.js",
+      "permanent": false
+    },
+    {
       "source": "/*",
       "destination": "/index.html",
       "permanent": false
