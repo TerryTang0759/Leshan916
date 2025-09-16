@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB连接诊断工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-btn:hover {
+            background: #5a6fd8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #ddd;
+        }
+        .test-item.success {
+            border-left-color: #28a745;
+        }
+        .test-item.error {
+            border-left-color: #dc3545;
+        }
+        .test-item.running {
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 MongoDB连接诊断工具</h1>
+            <p>全面测试MongoDB连接和EdgeOne Pages Node Functions</p>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 连接测试</h3>
+            <button class="test-btn" onclick="runMongoDBTest()">运行MongoDB连接测试</button>
+            <button class="test-btn" onclick="testAPI('/api/health')">测试健康检查</button>
+            <button class="test-btn" onclick="testAPI('/api/prices')">测试价格API</button>
+            <button class="test-btn" onclick="clearResults()">清除结果</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 测试结果</h3>
+            <div id="testResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 诊断信息</h3>
+            <div id="diagnosticInfo">
+                <p><strong>当前时间:</strong> <span id="currentTime"></span></p>
+                <p><strong>测试URL:</strong> <span id="testUrl"></span></p>
+                <p><strong>用户代理:</strong> <span id="userAgent"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示当前时间
+        function updateTime() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleString('zh-CN');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // 显示测试信息
+        document.getElementById('testUrl').textContent = window.location.origin;
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+        
+        async function runMongoDBTest() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '正在运行MongoDB连接测试...';
+            resultDiv.className = 'result';
+            
+            try {
+                console.log('开始MongoDB连接测试');
+                const response = await fetch('/api/test');
+                const data = await response.json();
+                
+                console.log('测试结果:', data);
+                
+                let resultHTML = `MongoDB连接测试结果:\n`;
+                resultHTML += `时间: ${data.timestamp}\n`;
+                resultHTML += `状态: ${data.success ? '✅ 成功' : '❌ 失败'}\n\n`;
+                
+                if (data.tests && data.tests.length > 0) {
+                    resultHTML += `测试项目:\n`;
+                    data.tests.forEach((test, index) => {
+                        const status = test.status === 'success' ? '✅' : 
+                                     test.status === 'error' ? '❌' : '⏳';
+                        resultHTML += `${index + 1}. ${status} ${test.name}\n`;
+                        if (test.message) {
+                            resultHTML += `   消息: ${test.message}\n`;
+                        }
+                        if (test.error) {
+                            resultHTML += `   错误: ${test.error}\n`;
+                        }
+                        if (test.sampleData) {
+                            resultHTML += `   样本数据: ${JSON.stringify(test.sampleData, null, 2)}\n`;
+                        }
+                        resultHTML += `\n`;
+                    });
+                }
+                
+                if (data.environment) {
+                    resultHTML += `环境信息:\n`;
+                    resultHTML += `Node版本: ${data.environment.nodeVersion}\n`;
+                    resultHTML += `平台: ${data.environment.platform}\n`;
+                    resultHTML += `MongoDB配置: ${JSON.stringify(data.environment.mongoConfig, null, 2)}\n`;
+                }
+                
+                resultDiv.innerHTML = resultHTML;
+                resultDiv.className = data.success ? 'result success' : 'result error';
+                
+            } catch (error) {
+                console.error('测试错误:', error);
+                resultDiv.innerHTML = `
+MongoDB连接测试失败:
+错误: ${error.message}
+堆栈: ${error.stack}
+                `;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        async function testAPI(endpoint) {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `正在测试 ${endpoint}...`;
+            resultDiv.className = 'result';
+            
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.text();
+                
+                resultDiv.innerHTML = `
+测试端点: ${endpoint}
+响应状态: ${response.status}
+响应头: ${JSON.stringify([...response.headers.entries()], null, 2)}
+响应内容:
+${data}
+                `;
+                resultDiv.className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                resultDiv.innerHTML = `
+测试端点: ${endpoint}
+错误: ${error.message}
+堆栈: ${error.stack}
+                `;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        function clearResults() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'none';
+        }
+        
+        // 页面加载时自动运行测试
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('MongoDB诊断工具加载完成');
+            // 自动运行一次测试
+            setTimeout(runMongoDBTest, 1000);
+        });
+    </script>
+</body>
+</html>
