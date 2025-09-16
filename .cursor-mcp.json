@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["edgeone-pages-mcp"],
       "env": {
-        "EDGEONE_PAGES_API_TOKEN": "YOUR_API_TOKEN_HERE",
+        "EDGEONE_PAGES_API_TOKEN": "4n69v9+7gdqN3AYvt1duveXH/65TEz+uOU0rC79c/q4=",
         "EDGEONE_PAGES_PROJECT_NAME": "leshan-furniture-system"
       }
     }

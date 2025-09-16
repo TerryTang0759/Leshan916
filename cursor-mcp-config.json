@@ -5,7 +5,7 @@
       "args": ["edgeone-pages-mcp"],
       "env": {
         // 必填：EdgeOne Pages API Token
-        "EDGEONE_PAGES_API_TOKEN": "YOUR_API_TOKEN_HERE",
+        "EDGEONE_PAGES_API_TOKEN": "4n69v9+7gdqN3AYvt1duveXH/65TEz+uOU0rC79c/q4=",
         // 可选：项目名称，置空将创建新项目，填入则更新现有项目
         "EDGEONE_PAGES_PROJECT_NAME": "leshan-furniture-system"
       }
