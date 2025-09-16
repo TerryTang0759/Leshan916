@@ -4,7 +4,7 @@
   "description": "乐山家具定制报价系统 - EdgeOne Pages配置",
   "build": {
     "command": "npm run build",
-    "output": "public"
+    "output": "."
   },
   "functions": {
     "node-functions": {
