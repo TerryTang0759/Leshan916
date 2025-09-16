@@ -3,7 +3,7 @@
   "description": "乐山家具定制报价系统 - EdgeOne部署配置",
   "version": "1.0.0",
   "runtime": "nodejs18",
-  "entry": "server-edgeone.js",
+  "entry": "index.js",
   "handler": "handler",
   "timeout": 30,
   "memory": 512,
