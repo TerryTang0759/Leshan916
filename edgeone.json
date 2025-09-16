@@ -1,7 +1,7 @@
 {
   "name": "leshan-furniture-system",
   "version": "1.0.0",
-  "description": "乐山家具定制报价系统 - EdgeOne Pages配置",
+  "description": "乐山家具定制报价系统 - 国内访问优化版",
   "build": {
     "command": "npm run build",
     "output": "."
@@ -11,6 +11,17 @@
       "runtime": "nodejs20"
     }
   },
+  "headers": [
+    {
+      "source": "/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ],
   "environment": {
     "NODE_ENV": "production",
     "MONGODB_USERNAME": "terry07590759",
