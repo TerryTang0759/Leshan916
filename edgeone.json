@@ -11,35 +11,6 @@
       "runtime": "nodejs20"
     }
   },
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/api/*",
-      "destination": "/node-functions/index.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/*",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        }
-      ]
-    }
-  ],
   "environment": {
     "NODE_ENV": "production",
     "MONGODB_USERNAME": "terry07590759",
