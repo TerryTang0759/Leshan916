@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乐山家具定制 - MongoDB整合报价系统（高级版）</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-text: #1d1d1f;
+            --secondary-text: #86868b;
+            --tertiary-text: #a1a1a6;
+            --background: #ffffff;
+            --surface: #f5f5f7;
+            --card-background: #fbfbfd;
+            --accent-blue: #007aff;
+            --accent-blue-hover: #0056cc;
+            --accent-green: #34c759;
+            --accent-red: #ff3b30;
+            --accent-orange: #ff9500;
+            --border-light: #d2d2d7;
+            --shadow-light: rgba(0, 0, 0, 0.04);
+            --shadow-medium: rgba(0, 0, 0, 0.08);
+            --shadow-heavy: rgba(0, 0, 0, 0.16);
+            --radius-small: 8px;
+            --radius-medium: 12px;
+            --radius-large: 16px;
+            --spacing-xs: 8px;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+            --spacing-xl: 48px;
+            --spacing-xxl: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--primary-text);
+            line-height: 1.47059;
+            font-size: 17px;
+            font-weight: 400;
+            letter-spacing: -0.022em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            scroll-behavior: smooth;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            font-weight: 500;
+        }
+
+        .connection-status.connected { background: var(--accent-green); color: white; }
+        .connection-status.disconnected { background: var(--accent-red); color: white; }
+        .connection-status.loading { background: var(--accent-orange); color: white; }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--background);
+            padding: 88px var(--spacing-md) 64px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            line-height: 1.07143;
+            font-weight: 600;
+            letter-spacing: -0.005em;
+            color: var(--primary-text);
+            margin-bottom: var(--spacing-sm);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .hero p {
+            font-size: 21px;
+            line-height: 1.381;
+            font-weight: 400;
+            letter-spacing: 0.011em;
+            color: var(--secondary-text);
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-blue);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 max(var(--spacing-md), env(safe-area-inset-left));
+        }
+
+        /* Section */
+        .section {
+            padding: 88px 0;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 48px;
+            line-height: 1.08349;
+            font-weight: 600;
+            letter-spacing: -0.003em;
+            text-align: center;
+            margin-bottom: 64px;
+            color: var(--primary-text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 48px;
+            padding: 4px;
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 2px 10px var(--shadow-light);
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--secondary-text);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            white-space: nowrap;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-btn:hover {
+            background: rgba(0, 122, 255, 0.08);
+            color: var(--accent-blue);
+        }
+
+        .tab-btn.active {
+            background: var(--background);
+            color: var(--accent-blue);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            position: relative;
+            min-height: 400px;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .calculator-card {
+            background: var(--card-background);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-large);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: 0 4px 20px var(--shadow-light);
+        }
+
+        .calculator-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-text);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--primary-text);
+            margin-bottom: var(--spacing-xs);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-small);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--background);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        /* Input Groups */
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+            align-items: end;
+        }
+
+        .input-group-triple {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--spacing-sm);
+            align-items: end;
+        }
+
+        .config-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--spacing-sm);
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--secondary-text);
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        /* Advanced Settings */
+        .advanced-settings {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-medium);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .advanced-settings h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-text);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .toggle-advanced {
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-small);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .dynamic-inputs {
+            margin-top: var(--spacing-sm);
+        }
+
+        .dimension-group {
+            margin-bottom: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--background);
+            border-radius: var(--radius-small);
+            border: 1px solid var(--border-light);
+        }
+
+        .dimension-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--primary-text);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        /* Material Selector with Search */
+        .material-selector {
+            position: relative;
+        }
+
+        .material-search {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-small);
+            font-size: 1rem;
+            background: var(--background);
+            transition: all 0.3s ease;
+            cursor: text;
+        }
+        
+        .material-search:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .material-search:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .material-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--background);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-small);
+            box-shadow: 0 8px 25px var(--shadow-medium);
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .material-dropdown.show {
+            display: block;
+        }
+
+        .material-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--surface);
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .material-option:hover,
+        .material-option.active {
+            background: var(--surface);
+        }
+        
+        .material-option.active {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .material-option.active .material-name,
+        .material-option.active .material-price {
+            color: white;
+        }
+
+        .material-option:last-child {
+            border-bottom: none;
+        }
+        
+        .material-option.hidden {
+            display: none;
+        }
+        
+        .material-option .material-name {
+            font-weight: 500;
+            color: var(--primary-text);
+        }
+        
+        .material-option .material-price {
+            font-size: 0.9rem;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .material-option .name {
+            font-weight: 500;
+            color: var(--primary-text);
+        }
+
+        .material-option .price {
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* Calculation Info */
+        .calculation-info {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-medium);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .calculation-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary-text);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .calculation-info p {
+            font-size: 0.85rem;
+            color: var(--secondary-text);
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+
+        .separate-pricing {
+            background: linear-gradient(90deg, var(--accent-blue), #5856d6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600 !important;
+            margin-top: var(--spacing-xs) !important;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: var(--radius-small);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            width: 100%;
+            margin-top: var(--spacing-md);
+            letter-spacing: -0.01em;
+        }
+
+        .btn:hover {
+            background: var(--accent-blue-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            width: auto;
+            margin: 0;
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+        }
+
+        .btn-danger:hover {
+            background: #d70015;
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+        }
+
+        .btn-success:hover {
+            background: #28a745;
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--primary-text);
+            border: 2px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        /* Results Section */
+        .results {
+            background: var(--card-background);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-large);
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+            box-shadow: 0 8px 30px var(--shadow-light);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .results h3 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary-text);
+        }
+
+        .results-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* Table */
+        .quote-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--background);
+            border-radius: var(--radius-medium);
+            overflow: hidden;
+            box-shadow: 0 4px 20px var(--shadow-light);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .quote-table th {
+            background: var(--surface);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary-text);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .quote-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--primary-text);
+        }
+
+        .quote-table tr:hover {
+            background: var(--surface);
+        }
+
+        .quote-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .total-row {
+            background: var(--accent-blue) !important;
+            color: white !important;
+        }
+
+        .total-row td {
+            font-weight: 600;
+            border-bottom: none !important;
+        }
+
+        .total-summary {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-text);
+            padding: var(--spacing-md);
+            background: var(--surface);
+            border-radius: var(--radius-medium);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 28px; }
+            .hero p { font-size: 16px; }
+            .input-group, .input-group-triple, .config-inputs {
+                grid-template-columns: 1fr;
+            }
+            .tab-navigation {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            .results-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection Status -->
+    <div class="connection-status loading" id="connectionStatus">
+        <span class="loading-spinner"></span>连接MongoDB中...
+    </div>
+
+    <div class="hero">
+        <div class="badge">🔗 MongoDB实时数据驱动</div>
+        <h1>乐山家具定制</h1>
+        <p>专业、精准、高效的定制家具报价计算系统 - 高级算法整合版</p>
+    </div>
+
+    <div class="container">
+        <section class="section">
+            <h2 class="section-title">项目计算</h2>
+            
+            <!-- 标签页导航 -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" onclick="showTab('cabinet')">柜体</button>
+                <button class="tab-btn" onclick="showTab('wallpanel')">墙板</button>
+                <button class="tab-btn" onclick="showTab('door')">室内门</button>
+                <button class="tab-btn" onclick="showTab('stone')">石材岩板</button>
+                <button class="tab-btn" onclick="showTab('island')">橱柜岛台</button>
+                <button class="tab-btn" onclick="showTab('baseboard')">踢脚线</button>
+            </div>
+            
+            <!-- 标签页内容 -->
+            <div class="tab-content">
+                <!-- 柜体标签页 - 高级版本 -->
+                <div id="tab-cabinet" class="tab-panel active">
+                    <div class="calculator-card">
+                        <h3>柜体计算</h3>
+                        
+                        <div class="form-group">
+                            <label>计算方式</label>
+                            <select id="cabinetMethod" onchange="toggleCabinetMethod()">
+                                <option value="auto">自动计算展开面积</option>
+                                <option value="manual">直接输入展开面积</option>
+                            </select>
+                        </div>
+                        
+                        <div id="autoDimensions">
+                            <div class="form-group">
+                                <label>项目名称</label>
+                                <input type="text" id="cabinetName" placeholder="例如: 客厅电视柜">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>柜体尺寸 (mm)</label>
+                                <div class="input-group-triple">
+                                    <div>
+                                        <label>高度 (mm)</label>
+                                        <input type="number" id="cabinetHeight" placeholder="高度" step="1" min="0">
+                                    </div>
+                                    <div>
+                                        <label>宽度 (mm)</label>
+                                        <input type="number" id="cabinetWidth" placeholder="宽度" step="1" min="0">
+                                    </div>
+                                    <div>
+                                        <label>深度 (mm)</label>
+                                        <input type="number" id="cabinetDepth" placeholder="深度" step="1" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>柜体配置</label>
+                                <div class="config-inputs">
+                                    <div class="config-item">
+                                        <label class="config-label">门板数量</label>
+                                        <input type="number" id="cabinetDoors" placeholder="2" min="0" value="2">
+                                    </div>
+                                    <div class="config-item">
+                                        <label class="config-label">横隔板数量</label>
+                                        <input type="number" id="cabinetShelves" placeholder="1" min="0" value="1">
+                                    </div>
+                                    <div class="config-item">
+                                        <label class="config-label">竖隔板数量</label>
+                                        <input type="number" id="cabinetVerticalShelves" placeholder="0" min="0" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>柜门类型</label>
+                                <select id="doorCoverageType" onchange="toggleDoorCoverage()">
+                                    <option value="full">全覆盖（按柜体尺寸）</option>
+                                    <option value="custom">非全覆盖（自定义尺寸）</option>
+                                </select>
+                            </div>
+                            
+                            <div id="customDoorDimensions" style="display: none;">
+                                <div class="form-group">
+                                    <label>单扇门板尺寸 (mm)</label>
+                                    <div class="input-group">
+                                        <div>
+                                            <label>门高 (mm)</label>
+                                            <input type="number" id="doorHeight" placeholder="门高" step="1" min="0">
+                                        </div>
+                                        <div>
+                                            <label>门宽 (mm)</label>
+                                            <input type="number" id="doorWidth" placeholder="门宽" step="1" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 高级设置 -->
+                            <div class="advanced-settings">
+                                <h4>
+                                    高级设置 
+                                    <button class="toggle-advanced" onclick="toggleAdvancedSettings()">展开</button>
+                                </h4>
+                                
+                                <div id="advancedOptions" style="display: none;">
+                                    <!-- 玻璃门替换设置 -->
+                                    <div class="form-group">
+                                        <label>玻璃门替换设置</label>
+                                        <div class="input-group">
+                                            <div>
+                                                <label class="config-label">玻璃门数量</label>
+                                                <input type="number" id="glassDoorCount" placeholder="0" min="0" value="0" onchange="toggleGlassDoorSettings()">
+                                            </div>
+                                            <div>
+                                                <label>玻璃材质</label>
+                                                <div class="material-selector">
+                                                    <input type="text" class="material-search" id="glassMaterialSearch" 
+                                                           placeholder="搜索玻璃类型..." onclick="showMaterialOptions('glass')" 
+                                                           onkeyup="filterMaterials('glass', this.value)" 
+                                                           onfocus="showMaterialOptions('glass')">
+                                                    <div class="material-dropdown" id="glassMaterialDropdown"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="glassDoorSettings" style="display: none;">
+                                        <div class="form-group">
+                                            <label>玻璃门尺寸设置 (mm)</label>
+                                            <div id="glassDoorDimensions" class="dynamic-inputs">
+                                                <!-- 动态生成的玻璃门尺寸输入框 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 镂空开放格设置 -->
+                                    <div class="form-group">
+                                        <label>镂空开放格设置</label>
+                                        <div class="config-item">
+                                            <label class="config-label">开放格数量</label>
+                                            <input type="number" id="openSpaceCount" placeholder="0" min="0" value="0" onchange="toggleOpenSpaceSettings()">
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="openSpaceSettings" style="display: none;">
+                                        <div class="form-group">
+                                            <label>开放格尺寸设置 (cm)</label>
+                                            <div id="openSpaceDimensions" class="dynamic-inputs">
+                                                <!-- 动态生成的开放格尺寸输入框 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="calculation-info">
+                                <h4>💡 计算公式</h4>
+                                <p><strong>柜体面积</strong> = 顶板 + 底板 + 左右侧板 + 背板 + 横隔板 + 竖隔板</p>
+                                <p>柜体: 2×(宽×深) + 2×(深×高) + (宽×高) + 横隔板×(宽×深) + 竖隔板×(深×高)</p>
+                                <p><strong>柜门总面积</strong>:</p>
+                                <p>• 全覆盖: 柜体总宽×柜体总高</p>
+                                <p>• 非全覆盖: 柜门总宽×柜门总高</p>
+                                <p><strong>铰链计算</strong>: 每扇门配1套铰链，每套铰链个数 = ⌊门高/50⌋ + 1</p>
+                                <p><strong>拉手计算</strong>: 拉手数量 = 门板数量</p>
+                                <p><strong>滑轨计算</strong>: 用户手动输入滑轨数量</p>
+                                <p class="separate-pricing">🎯 柜门按总面积报价，铰链和拉手按门数计算，滑轨按用户指定数量</p>
+                            </div>
+                        </div>
+                        
+                        <div id="manualDimensions" style="display: none;">
+                            <div class="form-group">
+                                <label>项目名称</label>
+                                <input type="text" id="cabinetNameManual" placeholder="例如: 客厅电视柜">
+                            </div>
+                            <div class="form-group">
+                                <label>展开面积 (㎡)</label>
+                                <input type="number" id="cabinetArea" step="0.01" placeholder="直接输入展开面积" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>材质价格设置</label>
+                            <div class="input-group-triple">
+                                <div>
+                                    <label>柜体板材型号</label>
+                                    <div class="material-selector">
+                                        <input type="text" class="material-search" id="cabinetMaterialSearch" 
+                                               placeholder="搜索柜体材质..." onclick="showMaterialOptions('cabinet')" 
+                                               onkeyup="filterMaterials('cabinet', this.value)" 
+                                               onfocus="showMaterialOptions('cabinet')">
+                                        <div class="material-dropdown" id="cabinetMaterialDropdown"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>柜门板材型号</label>
+                                    <div class="material-selector">
+                                        <input type="text" class="material-search" id="doorPanelMaterialSearch" 
+                                               placeholder="搜索门板材质..." onclick="showMaterialOptions('doorPanel')" 
+                                               onkeyup="filterMaterials('doorPanel', this.value)" 
+                                               onfocus="showMaterialOptions('doorPanel')">
+                                        <div class="material-dropdown" id="doorPanelMaterialDropdown"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>铰链型号</label>
+                                    <div class="material-selector">
+                                        <input type="text" class="material-search" id="hingeMaterialSearch" 
+                                               placeholder="搜索铰链类型..." onclick="showMaterialOptions('hinge')" 
+                                               onkeyup="filterMaterials('hinge', this.value)" 
+                                               onfocus="showMaterialOptions('hinge')">
+                                        <div class="material-dropdown" id="hingeMaterialDropdown"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>拉手型号</label>
+                                    <div class="material-selector">
+                                        <input type="text" class="material-search" id="handleMaterialSearch" 
+                                               placeholder="搜索拉手类型..." onclick="showMaterialOptions('handle')" 
+                                               onkeyup="filterMaterials('handle', this.value)" 
+                                               onfocus="showMaterialOptions('handle')">
+                                        <div class="material-dropdown" id="handleMaterialDropdown"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>滑轨型号</label>
+                                    <div class="material-selector">
+                                        <input type="text" class="material-search" id="slideMaterialSearch" 
+                                               placeholder="搜索滑轨类型..." onclick="showMaterialOptions('slide')" 
+                                               onkeyup="filterMaterials('slide', this.value)" 
+                                               onfocus="showMaterialOptions('slide')">
+                                        <div class="material-dropdown" id="slideMaterialDropdown"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>滑轨数量</label>
+                                    <input type="number" id="slideCount" min="0" step="1" value="0" placeholder="滑轨套数">
+                                </div>
+                                <div>
+                                    <label>罗马柱型号</label>
+                                    <div class="material-selector">
+                                        <input type="text" class="material-search" id="columnMaterialSearch" 
+                                               placeholder="搜索罗马柱类型..." onclick="showMaterialOptions('column')" 
+                                               onkeyup="filterMaterials('column', this.value)" 
+                                               onfocus="showMaterialOptions('column')">
+                                        <div class="material-dropdown" id="columnMaterialDropdown"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>罗马柱长度 (mm)</label>
+                                    <input type="number" id="columnLength" min="0" step="1" value="0" placeholder="罗马柱长度">
+                                </div>
+                                <div>
+                                    <label>灯光型号</label>
+                                    <div class="material-selector">
+                                        <input type="text" class="material-search" id="lightingMaterialSearch" 
+                                               placeholder="搜索灯光类型..." onclick="showMaterialOptions('lighting')" 
+                                               onkeyup="filterMaterials('lighting', this.value)" 
+                                               onfocus="showMaterialOptions('lighting')">
+                                        <div class="material-dropdown" id="lightingMaterialDropdown"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>灯光长度 (mm)</label>
+                                    <input type="number" id="lightingLength" min="0" step="1" value="0" placeholder="灯光长度">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="addCabinetAdvanced()">添加柜体项目</button>
+                    </div>
+                </div>
+                
+                <!-- 其他标签页保持简化版本 -->
+                <div id="tab-wallpanel" class="tab-panel">
+                    <div class="calculator-card">
+                        <h3>墙板计算</h3>
+                        
+                        <div class="form-group">
+                            <label>项目名称</label>
+                            <input type="text" id="wallpanelName" placeholder="例如: 客厅背景墙">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>墙板尺寸 (mm)</label>
+                            <div class="input-group">
+                                <div>
+                                    <label>高度 (mm)</label>
+                                    <input type="number" id="wallpanelHeight" placeholder="高度" step="1" min="0">
+                                </div>
+                                <div>
+                                    <label>宽度 (mm)</label>
+                                    <input type="number" id="wallpanelWidth" placeholder="宽度" step="1" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>墙板材质</label>
+                            <div class="material-selector">
+                                <input type="text" class="material-search" id="wallpanelMaterialSearch" 
+                                       placeholder="搜索墙板材质..." onclick="showMaterialOptions('wallpanel')" 
+                                       onkeyup="filterMaterials('wallpanel', this.value)" 
+                                       onfocus="showMaterialOptions('wallpanel')">
+                                <div class="material-dropdown" id="wallpanelMaterialDropdown"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>罗马柱型号</label>
+                            <div class="material-selector">
+                                <input type="text" class="material-search" id="wallpanelColumnMaterialSearch" 
+                                       placeholder="搜索罗马柱类型..." onclick="showMaterialOptions('column', 'wallpanelColumnMaterialDropdown')" 
+                                       onkeyup="filterMaterials('column', this.value, 'wallpanelColumnMaterialDropdown')" 
+                                       onfocus="showMaterialOptions('column', 'wallpanelColumnMaterialDropdown')">
+                                <div class="material-dropdown" id="wallpanelColumnMaterialDropdown"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>罗马柱长度 (mm)</label>
+                            <input type="number" id="wallpanelColumnLength" min="0" step="1" value="0" placeholder="罗马柱长度">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>灯光型号</label>
+                            <div class="material-selector">
+                                <input type="text" class="material-search" id="wallpanelLightingMaterialSearch" 
+                                       placeholder="搜索灯光类型..." onclick="showMaterialOptions('lighting', 'wallpanelLightingMaterialDropdown')" 
+                                       onkeyup="filterMaterials('lighting', this.value, 'wallpanelLightingMaterialDropdown')" 
+                                       onfocus="showMaterialOptions('lighting', 'wallpanelLightingMaterialDropdown')">
+                                <div class="material-dropdown" id="wallpanelLightingMaterialDropdown"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>灯光长度 (mm)</label>
+                            <input type="number" id="wallpanelLightingLength" min="0" step="1" value="0" placeholder="灯光长度">
+                        </div>
+                        
+                        <button class="btn" onclick="addWallpanelAdvanced()">添加墙板项目</button>
+                    </div>
+                </div>
+                
+                <!-- 其他标签页内容... (保持简化，重点在柜体) -->
+                <div id="tab-door" class="tab-panel">
+                    <div class="calculator-card">
+                        <h3>室内门计算</h3>
+                        <div class="form-group">
+                            <label>项目名称</label>
+                            <input type="text" id="doorName" placeholder="例如: 卧室门">
+                        </div>
+                        <div class="form-group">
+                            <label>门数量 (樘)</label>
+                            <input type="number" id="doorQuantity" placeholder="数量" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>门类型</label>
+                            <div class="material-selector">
+                                <input type="text" class="material-search" id="doorMaterialSearch" 
+                                       placeholder="搜索门类型..." onclick="showMaterialOptions('door')" 
+                                       onkeyup="filterMaterials('door', this.value)" 
+                                       onfocus="showMaterialOptions('door')">
+                                <div class="material-dropdown" id="doorMaterialDropdown"></div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="addItem('door')">添加室内门项目</button>
+                    </div>
+                </div>
+                
+                <!-- 简化的其他标签页 -->
+                
+                <div id="tab-stone" class="tab-panel">
+                    <div class="calculator-card">
+                        <h3>石材岩板计算</h3>
+                        <div class="form-group">
+                            <label>项目名称</label>
+                            <input type="text" id="stoneName" placeholder="例如: 客厅地面石材">
+                        </div>
+                        <div class="form-group">
+                            <label>面积 (㎡)</label>
+                            <input type="number" id="stoneArea" placeholder="面积" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>石材类型</label>
+                            <div class="material-selector">
+                                <input type="text" class="material-search" id="stoneMaterialSearch" 
+                                       placeholder="搜索石材类型..." onclick="showMaterialOptions('stone')" 
+                                       onkeyup="filterMaterials('stone', this.value)" 
+                                       onfocus="showMaterialOptions('stone')">
+                                <div class="material-dropdown" id="stoneMaterialDropdown"></div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="addItem('stone')">添加石材项目</button>
+                    </div>
+                </div>
+                
+                <div id="tab-island" class="tab-panel">
+                    <div class="calculator-card">
+                        <h3>橱柜岛台计算</h3>
+                        <div class="form-group">
+                            <label>项目名称</label>
+                            <input type="text" id="islandName" placeholder="例如: 厨房中岛">
+                        </div>
+                        <div class="form-group">
+                            <label>长度 (mm)</label>
+                            <input type="number" id="islandLength" placeholder="长度" step="1" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>岛台类型</label>
+                            <div class="material-selector">
+                                <input type="text" class="material-search" id="islandMaterialSearch" 
+                                       placeholder="搜索岛台类型..." onclick="showMaterialOptions('island')" 
+                                       onkeyup="filterMaterials('island', this.value)" 
+                                       onfocus="showMaterialOptions('island')">
+                                <div class="material-dropdown" id="islandMaterialDropdown"></div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="addItem('island')">添加岛台项目</button>
+                    </div>
+                </div>
+                
+                <div id="tab-baseboard" class="tab-panel">
+                    <div class="calculator-card">
+                        <h3>踢脚线计算</h3>
+                        <div class="form-group">
+                            <label>项目名称</label>
+                            <input type="text" id="baseboardName" placeholder="例如: 客厅踢脚线">
+                        </div>
+                        <div class="form-group">
+                            <label>长度 (mm)</label>
+                            <input type="number" id="baseboardLength" placeholder="长度" step="1" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>踢脚线类型</label>
+                            <div class="material-selector">
+                                <input type="text" class="material-search" id="baseboardMaterialSearch" 
+                                       placeholder="搜索踢脚线类型..." onclick="showMaterialOptions('baseboard')" 
+                                       onkeyup="filterMaterials('baseboard', this.value)" 
+                                       onfocus="showMaterialOptions('baseboard')">
+                                <div class="material-dropdown" id="baseboardMaterialDropdown"></div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="addItem('baseboard')">添加踢脚线项目</button>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="results fade-in">
+                <div class="results-header">
+                    <h3>📋 项目报价清单</h3>
+                    <div class="results-actions">
+                        <button class="btn-secondary btn-small" onclick="clearAllItems()">清空清单</button>
+                        <button class="btn-success btn-small" onclick="exportToExcel()">导出Excel</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="quote-table" id="quoteTable">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>空间产品名</th>
+                                <th>类型</th>
+                                <th>材质规格</th>
+                                <th>数量/面积</th>
+                                <th>单价</th>
+                                <th>小计</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quoteBody">
+                            <!-- 报价项目将在这里显示 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="total-summary">
+                    总计金额: ¥<span id="totalAmount">0.00</span>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // 全局变量
+        let quoteItems = [];
+        let itemCounter = 0;
+        let selectedMaterials = {};
+        let materialDatabase = {}; // 将从MongoDB加载
+        let isMongoDBConnected = false; // MongoDB连接状态
+
+        // 连接状态管理
+        function updateConnectionStatus() {
+            const statusEl = document.getElementById('connectionStatus');
+            if (isMongoDBConnected) {
+                statusEl.className = 'connection-status connected';
+                statusEl.innerHTML = '✅ MongoDB已连接';
+            } else {
+                statusEl.className = 'connection-status disconnected';
+                statusEl.innerHTML = '❌ 使用备用数据';
+            }
+        }
+
+        // 新增：从MongoDB加载材料数据
+        async function loadMaterialsFromMongoDB() {
+            try {
+                const response = await fetch('/api/prices');
+                const result = await response.json();
+                if (result.success) {
+                    materialDatabase = result.data.reduce((acc, item) => {
+                        if (!acc[item.category]) {
+                            acc[item.category] = [];
+                        }
+                        acc[item.category].push(item);
+                        return acc;
+                    }, {});
+                    console.log('材料数据从MongoDB加载成功:', materialDatabase);
+                    isMongoDBConnected = true;
+                } else {
+                    console.error('从MongoDB加载材料失败:', result.error);
+                    isMongoDBConnected = false;
+                    loadFallbackData();
+                }
+            } catch (error) {
+                console.error('连接到后端API失败:', error);
+                isMongoDBConnected = false;
+                loadFallbackData();
+            }
+            updateConnectionStatus();
+        }
+
+        // 备用数据
+        function loadFallbackData() {
+            materialDatabase = {
+                cabinet: [
+                    { id: 'cab_001', name: '标准密度板 18mm', brand: '乐山家具', price: 280, unit: '元/㎡' },
+                    { id: 'cab_002', name: '高密度板 18mm', brand: '乐山家具', price: 320, unit: '元/㎡' },
+                    { id: 'cab_003', name: '实木颗粒板 18mm', brand: '乐山家具', price: 350, unit: '元/㎡' }
+                ],
+                doorPanel: [
+                    { id: 'door_001', name: '标准门板 免漆', brand: '乐山家具', price: 320, unit: '元/㎡' },
+                    { id: 'door_002', name: '吸塑门板 PVC', brand: '乐山家具', price: 380, unit: '元/㎡' }
+                ],
+                hardware: [
+                    // 铰链
+                    { id: 'hinge_001', name: '标准铰链 冷轧钢', brand: '乐山家具', price: 25, unit: '元/个', category: '铰链' },
+                    { id: 'hinge_002', name: '缓冲铰链 液压', brand: '乐山家具', price: 35, unit: '元/个', category: '铰链' },
+                    { id: 'hinge_003', name: '阻尼铰链 静音', brand: '乐山家具', price: 45, unit: '元/个', category: '铰链' },
+                    // 拉手
+                    { id: 'handle_001', name: '标准拉手 不锈钢', brand: '乐山家具', price: 15, unit: '元/个', category: '拉手' },
+                    { id: 'handle_002', name: '欧式拉手 铜质', brand: '乐山家具', price: 25, unit: '元/个', category: '拉手' },
+                    { id: 'handle_003', name: '现代拉手 铝合金', brand: '乐山家具', price: 20, unit: '元/个', category: '拉手' },
+                    // 滑轨
+                    { id: 'slide_001', name: '标准滑轨 三节', brand: '乐山家具', price: 35, unit: '元/套', category: '滑轨' },
+                    { id: 'slide_002', name: '缓冲滑轨 阻尼', brand: '乐山家具', price: 55, unit: '元/套', category: '滑轨' },
+                    { id: 'slide_003', name: '重型滑轨 承重', brand: '乐山家具', price: 75, unit: '元/套', category: '滑轨' }
+                ],
+                glass: [
+                    { id: 'glass_001', name: '透明钢化玻璃 5mm', brand: '乐山家具', price: 120, unit: '元/㎡' },
+                    { id: 'glass_002', name: '磨砂玻璃 6mm', brand: '乐山家具', price: 150, unit: '元/㎡' }
+                ],
+                wallpanel: [
+                    { id: 'wall_001', name: '标准护墙板 实木', brand: '乐山家具', price: 380, unit: '元/㎡' }
+                ],
+                door: [
+                    { id: 'door_001', name: '标准室内门 免漆', brand: '乐山家具', price: 1200, unit: '元/樘' }
+                ],
+                column: [
+                    { id: 'col_001', name: '欧式罗马柱 石膏', brand: '乐山家具', price: 280, unit: '元/米' }
+                ],
+                lighting: [
+                    { id: 'light_001', name: 'LED灯带 暖白', brand: '乐山家具', price: 25, unit: '元/米' }
+                ],
+                stone: [
+                    { id: 'stone_001', name: '天然大理石', brand: '乐山家具', price: 680, unit: '元/㎡' }
+                ],
+                island: [
+                    { id: 'island_001', name: '标准橱柜岛台', brand: '乐山家具', price: 1200, unit: '元/延米' }
+                ],
+                baseboard: [
+                    { id: 'base_001', name: '标准踢脚线 PVC', brand: '乐山家具', price: 35, unit: '元/米' }
+                ]
+            };
+        }
+
+        // 标签页切换功能
+        function showTab(tabName) {
+            console.log('切换到标签页:', tabName);
+            
+            // 隐藏所有标签页内容
+            const tabPanels = document.querySelectorAll('.tab-panel');
+            tabPanels.forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // 移除所有标签按钮的激活状态
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的标签页内容
+            const selectedPanel = document.getElementById('tab-' + tabName);
+            if (selectedPanel) {
+                selectedPanel.classList.add('active');
+                console.log('标签页切换成功:', tabName);
+            } else {
+                console.error('找不到标签页:', 'tab-' + tabName);
+            }
+            
+            // 激活对应的标签按钮
+            const clickedButton = event.target;
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+            
+            // 隐藏所有材料下拉菜单
+            hideAllMaterialDropdowns();
+        }
+
+        // 切换柜体计算方式
+        function toggleCabinetMethod() {
+            const method = document.getElementById('cabinetMethod').value;
+            const autoDimensions = document.getElementById('autoDimensions');
+            const manualDimensions = document.getElementById('manualDimensions');
+            
+            if (method === 'auto') {
+                autoDimensions.style.display = 'block';
+                manualDimensions.style.display = 'none';
+            } else {
+                autoDimensions.style.display = 'none';
+                manualDimensions.style.display = 'block';
+            }
+        }
+
+        // 切换门覆盖模式
+        function toggleDoorCoverage() {
+            const coverageType = document.getElementById('doorCoverageType').value;
+            const customDoorDimensions = document.getElementById('customDoorDimensions');
+            
+            if (coverageType === 'custom') {
+                customDoorDimensions.style.display = 'block';
+            } else {
+                customDoorDimensions.style.display = 'none';
+            }
+        }
+
+        // 切换高级设置
+        function toggleAdvancedSettings() {
+            const advancedOptions = document.getElementById('advancedOptions');
+            const toggleButton = document.querySelector('.toggle-advanced');
+            
+            if (advancedOptions.style.display === 'none' || !advancedOptions.style.display) {
+                advancedOptions.style.display = 'block';
+                toggleButton.textContent = '收起';
+            } else {
+                advancedOptions.style.display = 'none';
+                toggleButton.textContent = '展开';
+            }
+        }
+
+        // 切换玻璃门设置
+        function toggleGlassDoorSettings() {
+            const glassDoorCount = parseInt(document.getElementById('glassDoorCount').value) || 0;
+            const glassDoorSettings = document.getElementById('glassDoorSettings');
+            
+            if (glassDoorCount > 0) {
+                glassDoorSettings.style.display = 'block';
+                generateGlassDoorDimensions(glassDoorCount);
+            } else {
+                glassDoorSettings.style.display = 'none';
+            }
+        }
+
+        // 切换开放格设置
+        function toggleOpenSpaceSettings() {
+            const openSpaceCount = parseInt(document.getElementById('openSpaceCount').value) || 0;
+            const openSpaceSettings = document.getElementById('openSpaceSettings');
+            
+            if (openSpaceCount > 0) {
+                openSpaceSettings.style.display = 'block';
+                generateOpenSpaceDimensions(openSpaceCount);
+            } else {
+                openSpaceSettings.style.display = 'none';
+            }
+        }
+
+        // 动态生成玻璃门尺寸输入框
+        function generateGlassDoorDimensions(count) {
+            const container = document.getElementById('glassDoorDimensions');
+            const currentCount = container.children.length;
+            
+            if (count > currentCount) {
+                // 增加输入框
+                for (let i = currentCount + 1; i <= count; i++) {
+                    const dimensionGroup = document.createElement('div');
+                    dimensionGroup.className = 'dimension-group';
+                    dimensionGroup.innerHTML = `
+                        <div class="dimension-label">第${i}扇玻璃门</div>
+                        <div class="input-group">
+                            <div>
+                                <label>高度 (mm)</label>
+                                <input type="number" id="glassDoorHeight${i}" placeholder="高度" step="1" min="0">
+                            </div>
+                            <div>
+                                <label>宽度 (mm)</label>
+                                <input type="number" id="glassDoorWidth${i}" placeholder="宽度" step="1" min="0">
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(dimensionGroup);
+                }
+            } else if (count < currentCount) {
+                // 减少输入框
+                for (let i = currentCount; i > count; i--) {
+                    const lastGroup = container.lastElementChild;
+                    if (lastGroup) {
+                        container.removeChild(lastGroup);
+                    }
+                }
+            }
+        }
+
+        // 动态生成开放格尺寸输入框
+        function generateOpenSpaceDimensions(count) {
+            const container = document.getElementById('openSpaceDimensions');
+            const currentCount = container.children.length;
+            
+            if (count > currentCount) {
+                // 增加输入框
+                for (let i = currentCount + 1; i <= count; i++) {
+                    const dimensionGroup = document.createElement('div');
+                    dimensionGroup.className = 'dimension-group';
+                    dimensionGroup.innerHTML = `
+                        <div class="dimension-label">第${i}个开放格</div>
+                        <div class="input-group">
+                            <div>
+                                <label>高度 (mm)</label>
+                                <input type="number" id="openSpaceHeight${i}" placeholder="高度" step="1" min="0">
+                            </div>
+                            <div>
+                                <label>宽度 (mm)</label>
+                                <input type="number" id="openSpaceWidth${i}" placeholder="宽度" step="1" min="0">
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(dimensionGroup);
+                }
+            } else if (count < currentCount) {
+                // 减少输入框
+                for (let i = currentCount; i > count; i--) {
+                    const lastGroup = container.lastElementChild;
+                    if (lastGroup) {
+                        container.removeChild(lastGroup);
+                    }
+                }
+            }
+        }
+
+        // 计算柜体展开面积（不包括门板）
+        function calculateCabinetArea(height, width, depth, horizontalShelves, verticalShelves) {
+            // 转换为米 (输入已经是米，无需转换)
+            const h = height;
+            const w = width;
+            const d = depth;
+            
+            // 柜体面积计算（不包括门板）
+            const topBottom = 2 * (w * d);                    // 顶板+底板
+            const leftRight = 2 * (d * h);                    // 左右侧板
+            const back = w * h;                               // 背板
+            const horizontalShelvesArea = horizontalShelves * (w * d); // 横隔板
+            const verticalShelvesArea = verticalShelves * (d * h);     // 竖隔板
+            
+            return topBottom + leftRight + back + horizontalShelvesArea + verticalShelvesArea;
+        }
+
+        // 计算柜门总面积
+        function calculateDoorTotalArea(width, height, doors, coverageType, doorWidth, doorHeight) {
+            if (coverageType === 'full') {
+                // 全覆盖模式：柜门总面积 = 柜体总高 × 柜体总宽
+                const w = width; // 已经是米，无需转换
+                const h = height; // 已经是米，无需转换
+                return w * h;
+            } else {
+                // 非全覆盖模式：柜门总面积 = 柜门总宽 × 柜门总高
+                const dw = doorWidth; // 已经是米，无需转换
+                const dh = doorHeight; // 已经是米，无需转换
+                return dw * dh;
+            }
+        }
+
+        // 计算铰链数量（每扇门一套，每套铰链个数按门高计算）
+        function calculateHinges(doors, doorHeight, coverageType, cabinetHeight) {
+            if (doors === 0) return 0;
+            
+            let actualDoorHeight;
+            if (coverageType === 'full') {
+                actualDoorHeight = cabinetHeight;
+            } else {
+                actualDoorHeight = doorHeight;
+            }
+            
+            // 每套铰链个数 = ⌊门高/0.5⌋ + 1 (门高是米，500mm=0.5m)
+            const hingesPerSet = Math.floor(actualDoorHeight / 0.5) + 1;
+            // 总铰链个数 = 门数 × 每套铰链个数
+            return doors * hingesPerSet;
+        }
+
+        // 计算拉手数量（拉手数量 = 门板数量）
+        function calculateHandles(doors) {
+            return doors;
+        }
+
+        // 计算滑轨数量（滑轨数量 = 门板数量）
+        function calculateSlides(doors) {
+            return doors;
+        }
+
+        // 高级柜体计算功能
+        function addCabinetAdvanced() {
+            console.log('添加高级柜体项目');
+            
+            const method = document.getElementById('cabinetMethod').value;
+            const name = method === 'auto' ? 
+                (document.getElementById('cabinetName').value || '柜体项目') : 
+                (document.getElementById('cabinetNameManual').value || '柜体项目');
+            
+            // 获取材料
+            const cabinetMaterial = selectedMaterials['cabinet'];
+            const doorPanelMaterial = selectedMaterials['doorPanel'];
+            const hingeMaterial = selectedMaterials['hinge'];
+            
+            if (!cabinetMaterial) {
+                alert('请选择柜体材质！');
+                return;
+            }
+            
+            if (method === 'auto') {
+                const height = parseFloat(document.getElementById('cabinetHeight').value) / 1000; // mm转m
+                const width = parseFloat(document.getElementById('cabinetWidth').value) / 1000; // mm转m
+                const depth = parseFloat(document.getElementById('cabinetDepth').value) / 1000; // mm转m
+                const doors = parseInt(document.getElementById('cabinetDoors').value) || 0;
+                const horizontalShelves = parseInt(document.getElementById('cabinetShelves').value) || 0;
+                const verticalShelves = parseInt(document.getElementById('cabinetVerticalShelves').value) || 0;
+                const coverageType = document.getElementById('doorCoverageType').value;
+                
+                if (!height || !width || !depth) {
+                    alert('请输入完整的柜体尺寸！');
+                    return;
+                }
+                
+                // 计算柜体面积（不含门板）
+                const cabinetArea = calculateCabinetArea(height, width, depth, horizontalShelves, verticalShelves);
+                const cabinetSubtotal = cabinetArea * cabinetMaterial.price;
+                const cabinetDetails = `${(height*1000).toFixed(0)}×${(width*1000).toFixed(0)}×${(depth*1000).toFixed(0)}mm, 横隔板${horizontalShelves}个, 竖隔板${verticalShelves}个`;
+                
+                // 添加柜体项目
+                quoteItems.push({
+                    id: ++itemCounter,
+                    name: name + ' - 柜体',
+                    type: '柜体',
+                    material: cabinetMaterial.name,
+                    quantity: cabinetArea.toFixed(2) + ' ㎡',
+                    details: cabinetDetails,
+                    unitPrice: cabinetMaterial.price,
+                    subtotal: cabinetSubtotal
+                });
+                
+                // 获取玻璃门和开放格信息
+                const glassDoorCount = parseInt(document.getElementById('glassDoorCount').value) || 0;
+                const openSpaceCount = parseInt(document.getElementById('openSpaceCount').value) || 0;
+                
+                // 如果有门板，添加门板项目和铰链项目
+                if (doors > 0) {
+                    if (!doorPanelMaterial) {
+                        alert('请选择柜门板材！');
+                        return;
+                    }
+                    
+                    let doorTotalArea, doorDetails, actualDoorHeight;
+                    
+                    if (coverageType === 'full') {
+                        // 全覆盖模式：柜门总面积 = 柜体总宽 × 柜体总高
+                        doorTotalArea = calculateDoorTotalArea(width, height, doors, 'full');
+                        doorDetails = `全覆盖: ${(width*1000).toFixed(0)}×${(height*1000).toFixed(0)}mm (柜体总面积)`;
+                        actualDoorHeight = height;
+                    } else {
+                        // 非全覆盖模式：柜门总面积 = 单扇门高 × 单扇门宽 × 门板数量
+                        const doorWidth = parseFloat(document.getElementById('doorWidth').value) / 1000; // mm转m
+                        const doorHeight = parseFloat(document.getElementById('doorHeight').value) / 1000; // mm转m
+                        
+                        if (!doorWidth || !doorHeight) {
+                            alert('请输入完整的单扇门板尺寸！');
+                            return;
+                        }
+                        
+                        doorTotalArea = calculateDoorTotalArea(0, 0, doors, 'custom', doorWidth, doorHeight);
+                        doorDetails = `非全覆盖: ${(doorWidth*1000).toFixed(0)}×${(doorHeight*1000).toFixed(0)}mm (柜门总面积)`;
+                        actualDoorHeight = doorHeight;
+                    }
+                    
+                    // 减去开放格面积
+                    if (openSpaceCount > 0) {
+                        let totalOpenSpaceArea = 0;
+                        let openSpaceDetails = [];
+                        
+                        for (let i = 1; i <= openSpaceCount; i++) {
+                            const height = parseFloat(document.getElementById(`openSpaceHeight${i}`).value) / 1000 || 0; // mm转m
+                            const width = parseFloat(document.getElementById(`openSpaceWidth${i}`).value) / 1000 || 0; // mm转m
+                            if (height > 0 && width > 0) {
+                                const area = height * width; // 已经是平方米
+                                totalOpenSpaceArea += area;
+                                openSpaceDetails.push(`${(width*1000).toFixed(0)}×${(height*1000).toFixed(0)}mm`);
+                            }
+                        }
+                        
+                        if (totalOpenSpaceArea > 0) {
+                            doorTotalArea = Math.max(0, doorTotalArea - totalOpenSpaceArea);
+                            doorDetails += `, 减去${openSpaceCount}个开放格(${openSpaceDetails.join(', ')})`;
+                        }
+                    }
+                    
+                    const doorSubtotal = doorTotalArea * doorPanelMaterial.price;
+                    
+                    // 添加柜门项目
+                    quoteItems.push({
+                        id: ++itemCounter,
+                        name: name + ' - 柜门',
+                        type: '柜门',
+                        material: doorPanelMaterial.name,
+                        quantity: doorTotalArea.toFixed(2) + ' ㎡',
+                        details: doorDetails,
+                        unitPrice: doorPanelMaterial.price,
+                        subtotal: doorSubtotal
+                    });
+                    
+                    // 计算并添加铰链项目
+                    if (hingeMaterial) {
+                        const totalHinges = calculateHinges(doors, actualDoorHeight, coverageType, height);
+                        const hingesPerSet = Math.floor(actualDoorHeight / 0.5) + 1;
+                        const hingeSubtotal = totalHinges * hingeMaterial.price;
+                        const hingeDetails = `${doors}扇门×${hingesPerSet}个/扇 (门高${(actualDoorHeight*1000).toFixed(0)}mm)`;
+                        
+                        quoteItems.push({
+                            id: ++itemCounter,
+                            name: name + ' - 铰链',
+                            type: '铰链',
+                            material: hingeMaterial.name,
+                            quantity: totalHinges + ' 个',
+                            details: hingeDetails,
+                            unitPrice: hingeMaterial.price,
+                            subtotal: hingeSubtotal
+                        });
+                    }
+                    
+                    // 计算并添加拉手项目
+                    const handleMaterial = selectedMaterials['handle'];
+                    if (handleMaterial) {
+                        const totalHandles = calculateHandles(doors);
+                        const handleSubtotal = totalHandles * handleMaterial.price;
+                        const handleDetails = `${doors}扇门，每扇门1个拉手`;
+                        
+                        quoteItems.push({
+                            id: ++itemCounter,
+                            name: name + ' - 拉手',
+                            type: '拉手',
+                            material: handleMaterial.name,
+                            quantity: totalHandles + ' 个',
+                            details: handleDetails,
+                            unitPrice: handleMaterial.price,
+                            subtotal: handleSubtotal
+                        });
+                    }
+                    
+                    // 计算并添加滑轨项目
+                    const slideMaterial = selectedMaterials['slide'];
+                    if (slideMaterial) {
+                        const slideCount = parseInt(document.getElementById('slideCount').value) || 0;
+                        if (slideCount > 0) {
+                            const slideSubtotal = slideCount * slideMaterial.price;
+                            const slideDetails = `用户指定数量: ${slideCount}套滑轨`;
+                            
+                            quoteItems.push({
+                                id: ++itemCounter,
+                                name: name + ' - 滑轨',
+                                type: '滑轨',
+                                material: slideMaterial.name,
+                                quantity: slideCount + ' 套',
+                                details: slideDetails,
+                                unitPrice: slideMaterial.price,
+                                subtotal: slideSubtotal
+                            });
+                        }
+                    }
+                }
+                
+                // 如果有玻璃门替换，添加玻璃门差价项目
+                if (glassDoorCount > 0) {
+                    const glassMaterial = selectedMaterials['glass'];
+                    
+                    if (glassMaterial) {
+                        let glassTotalArea = 0;
+                        let glassDetails = [];
+                        
+                        // 计算每扇玻璃门的面积
+                        for (let i = 1; i <= glassDoorCount; i++) {
+                            const glassHeight = (parseFloat(document.getElementById(`glassDoorHeight${i}`).value) / 1000) || actualDoorHeight; // mm转m
+                            const glassWidth = (parseFloat(document.getElementById(`glassDoorWidth${i}`).value) / 1000) || (width / doors); // mm转m
+                            if (glassHeight > 0 && glassWidth > 0) {
+                                const area = glassHeight * glassWidth; // 已经是平方米
+                                glassTotalArea += area;
+                                glassDetails.push(`${(glassWidth*1000).toFixed(0)}×${(glassHeight*1000).toFixed(0)}mm`);
+                            }
+                        }
+                        
+                        if (glassTotalArea > 0) {
+                            const glassSubtotal = glassTotalArea * glassMaterial.price;
+                            const glassDetailsStr = `玻璃门替换: ${glassDoorCount}扇(${glassDetails.join(', ')})`;
+                            
+                            quoteItems.push({
+                                id: ++itemCounter,
+                                name: name + ' - 玻璃门',
+                                type: '玻璃门',
+                                material: glassMaterial.name,
+                                quantity: glassTotalArea.toFixed(2) + ' ㎡',
+                                details: glassDetailsStr,
+                                unitPrice: glassMaterial.price,
+                                subtotal: glassSubtotal
+                            });
+                            
+                            // 计算门板差价（减去替换的门板面积费用）
+                            if (doorPanelMaterial) {
+                                const doorPriceDifference = glassTotalArea * doorPanelMaterial.price;
+                                
+                                if (doorPriceDifference > 0) {
+                                    quoteItems.push({
+                                        id: ++itemCounter,
+                                        name: name + ' - 门板减项',
+                                        type: '减项',
+                                        material: doorPanelMaterial.name,
+                                        quantity: glassTotalArea.toFixed(2) + ' ㎡',
+                                        details: `玻璃门替换减去门板: ${glassDoorCount}扇`,
+                                        unitPrice: -doorPanelMaterial.price,
+                                        subtotal: -doorPriceDifference
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // 手动输入模式
+                const area = parseFloat(document.getElementById('cabinetArea').value);
+                if (!area) {
+                    alert('请输入展开面积！');
+                    return;
+                }
+                
+                const subtotal = area * cabinetMaterial.price;
+                
+                quoteItems.push({
+                    id: ++itemCounter,
+                    name: name,
+                    type: '柜体',
+                    material: cabinetMaterial.name,
+                    quantity: area.toFixed(2) + ' ㎡',
+                    details: '手动输入',
+                    unitPrice: cabinetMaterial.price,
+                    subtotal: subtotal
+                });
+            }
+            
+            // 计算并添加罗马柱项目
+            const columnMaterial = selectedMaterials['column'];
+            if (columnMaterial) {
+                const columnLength = parseFloat(document.getElementById('columnLength').value) / 1000 || 0; // mm转m
+                if (columnLength > 0) {
+                    const columnSubtotal = columnLength * columnMaterial.price;
+                    const columnDetails = `长度: ${columnLength.toFixed(2)}米`;
+                    
+                    quoteItems.push({
+                        id: ++itemCounter,
+                        name: name + ' - 罗马柱',
+                        type: '罗马柱',
+                        material: columnMaterial.name,
+                        quantity: columnLength + ' 米',
+                        details: columnDetails,
+                        unitPrice: columnMaterial.price,
+                        subtotal: columnSubtotal
+                    });
+                }
+            }
+            
+            // 计算并添加灯光项目
+            const lightingMaterial = selectedMaterials['lighting'];
+            if (lightingMaterial) {
+                const lightingLength = parseFloat(document.getElementById('lightingLength').value) / 1000 || 0; // mm转m
+                if (lightingLength > 0) {
+                    const lightingSubtotal = lightingLength * lightingMaterial.price;
+                    const lightingDetails = `长度: ${lightingLength.toFixed(2)}米`;
+                    
+                    quoteItems.push({
+                        id: ++itemCounter,
+                        name: name + ' - 灯光',
+                        type: '灯光',
+                        material: lightingMaterial.name,
+                        quantity: lightingLength + ' 米',
+                        details: lightingDetails,
+                        unitPrice: lightingMaterial.price,
+                        subtotal: lightingSubtotal
+                    });
+                }
+            }
+            
+            updateQuoteTable();
+            clearCabinetInputs();
+            
+            console.log('高级柜体项目添加完成');
+        }
+
+        // 高级墙板计算功能
+        function addWallpanelAdvanced() {
+            console.log('添加高级墙板项目');
+            
+            const name = document.getElementById('wallpanelName').value || '墙板项目';
+            const wallpanelMaterial = selectedMaterials['wallpanel'];
+            
+            if (!wallpanelMaterial) {
+                alert('请选择墙板材质！');
+                return;
+            }
+            
+            const height = parseFloat(document.getElementById('wallpanelHeight').value) / 1000; // mm转m
+            const width = parseFloat(document.getElementById('wallpanelWidth').value) / 1000; // mm转m
+            
+            if (!height || !width) {
+                alert('请输入完整的墙板尺寸！');
+                return;
+            }
+            
+            const area = height * width; // 已经是平方米
+            const subtotal = area * wallpanelMaterial.price;
+            const details = `${(height*1000).toFixed(0)}×${(width*1000).toFixed(0)}mm`;
+            
+            quoteItems.push({
+                id: ++itemCounter,
+                name: name + ' - 墙板',
+                type: '墙板',
+                material: wallpanelMaterial.name,
+                quantity: area.toFixed(2) + ' ㎡',
+                details: details,
+                unitPrice: wallpanelMaterial.price,
+                subtotal: subtotal
+            });
+            
+            // 计算并添加罗马柱项目
+            const columnMaterial = selectedMaterials['column'];
+            if (columnMaterial) {
+                const columnLength = parseFloat(document.getElementById('wallpanelColumnLength').value) / 1000 || 0; // mm转m
+                if (columnLength > 0) {
+                    const columnSubtotal = columnLength * columnMaterial.price;
+                    const columnDetails = `长度: ${columnLength.toFixed(2)}米`;
+                    
+                    quoteItems.push({
+                        id: ++itemCounter,
+                        name: name + ' - 罗马柱',
+                        type: '罗马柱',
+                        material: columnMaterial.name,
+                        quantity: columnLength + ' 米',
+                        details: columnDetails,
+                        unitPrice: columnMaterial.price,
+                        subtotal: columnSubtotal
+                    });
+                }
+            }
+            
+            // 计算并添加灯光项目
+            const lightingMaterial = selectedMaterials['lighting'];
+            if (lightingMaterial) {
+                const lightingLength = parseFloat(document.getElementById('wallpanelLightingLength').value) / 1000 || 0; // mm转m
+                if (lightingLength > 0) {
+                    const lightingSubtotal = lightingLength * lightingMaterial.price;
+                    const lightingDetails = `长度: ${lightingLength.toFixed(2)}米`;
+                    
+                    quoteItems.push({
+                        id: ++itemCounter,
+                        name: name + ' - 灯光',
+                        type: '灯光',
+                        material: lightingMaterial.name,
+                        quantity: lightingLength + ' 米',
+                        details: lightingDetails,
+                        unitPrice: lightingMaterial.price,
+                        subtotal: lightingSubtotal
+                    });
+                }
+            }
+            
+            updateQuoteTable();
+            clearWallpanelInputs();
+            
+            console.log('高级墙板项目添加完成');
+        }
+
+        // 显示材料选项
+        function showMaterialOptions(type, customDropdownId = null) {
+            hideAllMaterialDropdowns();
+            
+            // 处理材质类型映射 - 使用新的分类
+            let materialType = type;
+            if (type === 'handle') {
+                materialType = 'puller'; // 拉手使用puller分类
+            } else if (type === 'hinge') {
+                materialType = 'hinge'; // 铰链使用hinge分类
+            } else if (type === 'slide') {
+                materialType = 'railway'; // 滑轨使用railway分类
+            }
+            const dropdownId = customDropdownId || (type + 'MaterialDropdown');
+            const dropdown = document.getElementById(dropdownId);
+            const materials = materialDatabase[materialType] || [];
+            
+            if (!dropdown) {
+                console.error('找不到下拉菜单元素:', type + 'MaterialDropdown');
+                return;
+            }
+            
+            // 获取当前搜索词
+            const searchInput = document.getElementById(type + 'MaterialSearch');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            
+            dropdown.innerHTML = '';
+            
+            if (materials.length === 0) {
+                dropdown.innerHTML = '<div class="material-option" style="color: var(--secondary-text); text-align: center;">暂无数据</div>';
+            } else {
+            materials.forEach(material => {
+                const option = document.createElement('div');
+                option.className = 'material-option';
+                option.onclick = () => selectMaterial(type, material);
+                    
+                    // 高亮搜索词
+                    let displayName = material.name;
+                    if (searchTerm && material.name.toLowerCase().includes(searchTerm)) {
+                        const regex = new RegExp(`(${searchTerm})`, 'gi');
+                        displayName = material.name.replace(regex, '<mark style="background: #ffeb3b; padding: 1px 2px; border-radius: 2px;">$1</mark>');
+                    }
+                    
+                option.innerHTML = `
+                        <div class="material-name">${displayName}</div>
+                        <div class="material-price">¥${material.price}${material.unit.replace('元', '')}</div>
+                `;
+                dropdown.appendChild(option);
+            });
+            }
+            
+            dropdown.style.display = 'block';
+            dropdown.classList.add('show');
+        }
+
+        // 选择材料
+        function selectMaterial(type, material) {
+            selectedMaterials[type] = material;
+            const searchInput = document.getElementById(type + 'MaterialSearch');
+            if (searchInput) {
+                searchInput.value = `${material.name} - ¥${material.price}${material.unit.replace('元', '')}`;
+            } else {
+                console.error('找不到材料输入框:', type + 'MaterialSearch');
+            }
+            hideAllMaterialDropdowns();
+        }
+        
+        // 添加键盘事件处理
+        function addKeyboardSupport() {
+            document.addEventListener('keydown', function(e) {
+                // 如果按下Escape键，隐藏所有下拉菜单
+                if (e.key === 'Escape') {
+                    hideAllMaterialDropdowns();
+                }
+            });
+            
+            // 为每个材质搜索框添加键盘事件
+            document.querySelectorAll('.material-search').forEach(input => {
+                input.addEventListener('keydown', function(e) {
+                    const dropdown = this.nextElementSibling;
+                    if (!dropdown || dropdown.style.display === 'none') return;
+                    
+                    const options = dropdown.querySelectorAll('.material-option');
+                    if (options.length === 0) return;
+                    
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        const currentActive = dropdown.querySelector('.material-option.active');
+                        if (currentActive) {
+                            currentActive.classList.remove('active');
+                            const next = currentActive.nextElementSibling;
+                            if (next) {
+                                next.classList.add('active');
+                                next.scrollIntoView({ block: 'nearest' });
+                            }
+                        } else {
+                            options[0].classList.add('active');
+                        }
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        const currentActive = dropdown.querySelector('.material-option.active');
+                        if (currentActive) {
+                            currentActive.classList.remove('active');
+                            const prev = currentActive.previousElementSibling;
+                            if (prev) {
+                                prev.classList.add('active');
+                                prev.scrollIntoView({ block: 'nearest' });
+                            }
+                        } else {
+                            options[options.length - 1].classList.add('active');
+                        }
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const activeOption = dropdown.querySelector('.material-option.active');
+                        if (activeOption) {
+                            activeOption.click();
+                        }
+                    }
+                });
+            });
+        }
+
+        // 过滤材料
+        function filterMaterials(type, searchTerm, customDropdownId = null) {
+            // 处理材质类型映射 - 使用新的分类
+            let materialType = type;
+            if (type === 'handle') {
+                materialType = 'puller'; // 拉手使用puller分类
+            } else if (type === 'hinge') {
+                materialType = 'hinge'; // 铰链使用hinge分类
+            } else if (type === 'slide') {
+                materialType = 'railway'; // 滑轨使用railway分类
+            }
+            const dropdownId = customDropdownId || (type + 'MaterialDropdown');
+            const dropdown = document.getElementById(dropdownId);
+            const materials = materialDatabase[materialType] || [];
+            
+            if (!dropdown) {
+                console.error('找不到下拉菜单元素:', type + 'MaterialDropdown');
+                return;
+            }
+            
+            // 确保下拉菜单显示
+            if (dropdown.style.display === 'none') {
+                dropdown.style.display = 'block';
+                dropdown.classList.add('show');
+            }
+            
+            if (!searchTerm || searchTerm.trim() === '') {
+                showMaterialOptions(type);
+                return;
+            }
+            
+            const searchLower = searchTerm.toLowerCase();
+            const filteredMaterials = materials.filter(material => 
+                material.name.toLowerCase().includes(searchLower) ||
+                material.brand.toLowerCase().includes(searchLower)
+            );
+            
+            dropdown.innerHTML = '';
+            
+            if (filteredMaterials.length === 0) {
+                dropdown.innerHTML = '<div class="material-option" style="color: var(--secondary-text); text-align: center;">未找到匹配的材质</div>';
+            } else {
+            filteredMaterials.forEach(material => {
+                const option = document.createElement('div');
+                option.className = 'material-option';
+                option.onclick = () => selectMaterial(type, material);
+                    
+                    // 高亮搜索词
+                    let displayName = material.name;
+                    if (searchLower && material.name.toLowerCase().includes(searchLower)) {
+                        const regex = new RegExp(`(${searchLower})`, 'gi');
+                        displayName = material.name.replace(regex, '<mark style="background: #ffeb3b; padding: 1px 2px; border-radius: 2px;">$1</mark>');
+                    }
+                    
+                option.innerHTML = `
+                        <div class="material-name">${displayName}</div>
+                        <div class="material-price">¥${material.price}${material.unit.replace('元', '')}</div>
+                `;
+                dropdown.appendChild(option);
+            });
+            }
+        }
+
+        // 隐藏所有材料下拉菜单
+        function hideAllMaterialDropdowns() {
+            document.querySelectorAll('.material-dropdown').forEach(dropdown => {
+                dropdown.style.display = 'none';
+                dropdown.classList.remove('show');
+            });
+        }
+
+        // 简化版添加项目功能（用于其他标签页）
+        function addItem(type) {
+            console.log('添加项目:', type);
+            
+            const nameInput = document.getElementById(type + 'Name');
+            const material = selectedMaterials[type];
+            
+            if (!nameInput) {
+                console.error('找不到项目名称输入框:', type);
+                return;
+            }
+            
+            if (!material) {
+                alert('请选择材质！');
+                return;
+            }
+            
+            const quantity = calculateQuantity(type);
+            if (!quantity || quantity.value <= 0) {
+                alert('请输入有效的尺寸或数量！');
+                return;
+            }
+            
+            const name = nameInput.value || (type + '项目');
+            const unitPrice = material.price;
+            const subtotal = quantity.value * unitPrice;
+            
+            // 添加到报价清单
+            quoteItems.push({
+                id: ++itemCounter,
+                name: name,
+                type: getTypeDisplayName(type),
+                material: material.name,
+                quantity: quantity.value.toFixed(2) + ' ' + quantity.unit,
+                details: quantity.details,
+                unitPrice: unitPrice,
+                subtotal: subtotal
+            });
+            
+            // 更新报价表格
+            updateQuoteTable();
+            
+            // 清空输入
+            clearInputs(type);
+            
+            console.log('项目添加成功:', name);
+        }
+
+        // 计算面积或数量
+        function calculateQuantity(type) {
+            switch (type) {
+                case 'wallpanel':
+                    const wallHeight = parseFloat(document.getElementById('wallpanelHeight').value) || 0;
+                    const wallWidth = parseFloat(document.getElementById('wallpanelWidth').value) || 0;
+                    if (wallHeight && wallWidth) {
+                        const area = (wallHeight * wallWidth) / 10000; // 转换为平方米
+                        return { value: area, unit: '㎡', details: `${wallHeight}×${wallWidth}cm` };
+                    }
+                    return null;
+                    
+                case 'door':
+                    const quantity = parseInt(document.getElementById('doorQuantity').value) || 1;
+                    return { value: quantity, unit: '樘', details: '' };
+                    
+                case 'column':
+                    const columnLength = parseFloat(document.getElementById('columnLength').value) || 0;
+                    return columnLength > 0 ? { value: columnLength, unit: '米', details: '' } : null;
+                    
+                case 'lighting':
+                    const lightingLength = parseFloat(document.getElementById('lightingLength').value) || 0;
+                    return lightingLength > 0 ? { value: lightingLength, unit: '米', details: '' } : null;
+                    
+                case 'stone':
+                    const stoneArea = parseFloat(document.getElementById('stoneArea').value) || 0;
+                    return stoneArea > 0 ? { value: stoneArea, unit: '㎡', details: '' } : null;
+                    
+                case 'island':
+                    const islandLength = parseFloat(document.getElementById('islandLength').value) / 1000 || 0; // mm转m
+                    return islandLength > 0 ? { value: islandLength, unit: '延米', details: '' } : null;
+                    
+                case 'baseboard':
+                    const baseboardLength = parseFloat(document.getElementById('baseboardLength').value) / 1000 || 0; // mm转m
+                    return baseboardLength > 0 ? { value: baseboardLength, unit: '米', details: '' } : null;
+                    
+                default:
+                    return null;
+            }
+        }
+
+        // 获取类型显示名称
+        function getTypeDisplayName(type) {
+            const typeNames = {
+                cabinet: '柜体',
+                wallpanel: '墙板',
+                door: '室内门',
+                column: '罗马柱',
+                lighting: '灯光',
+                stone: '石材岩板',
+                island: '橱柜岛台',
+                baseboard: '踢脚线'
+            };
+            return typeNames[type] || type;
+        }
+
+        // 清空柜体输入
+        function clearCabinetInputs() {
+            const method = document.getElementById('cabinetMethod').value;
+            
+            if (method === 'auto') {
+                ['cabinetName', 'cabinetHeight', 'cabinetWidth', 'cabinetDepth', 
+                 'doorWidth', 'doorHeight', 'glassDoorCount', 'openSpaceCount', 'slideCount', 'columnLength', 'lightingLength'].forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) input.value = '';
+                });
+                
+                document.getElementById('cabinetDoors').value = '2';
+                document.getElementById('cabinetShelves').value = '1';
+                document.getElementById('cabinetVerticalShelves').value = '0';
+                document.getElementById('glassDoorCount').value = '0';
+                document.getElementById('openSpaceCount').value = '0';
+                
+                // 隐藏高级设置
+                document.getElementById('glassDoorSettings').style.display = 'none';
+                document.getElementById('openSpaceSettings').style.display = 'none';
+                document.getElementById('glassDoorDimensions').innerHTML = '';
+                document.getElementById('openSpaceDimensions').innerHTML = '';
+            } else {
+                ['cabinetNameManual', 'cabinetArea'].forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) input.value = '';
+                });
+            }
+            
+            // 清空材料选择
+            ['cabinetMaterialSearch', 'doorPanelMaterialSearch', 'hingeMaterialSearch', 'handleMaterialSearch', 'slideMaterialSearch', 'glassMaterialSearch', 'columnMaterialSearch', 'lightingMaterialSearch'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+            });
+            
+            delete selectedMaterials['cabinet'];
+            delete selectedMaterials['doorPanel'];
+            delete selectedMaterials['hinge'];
+            delete selectedMaterials['handle'];
+            delete selectedMaterials['slide'];
+            delete selectedMaterials['glass'];
+            delete selectedMaterials['column'];
+            delete selectedMaterials['lighting'];
+        }
+
+        // 清空墙板输入
+        function clearWallpanelInputs() {
+            ['wallpanelName', 'wallpanelHeight', 'wallpanelWidth', 'wallpanelColumnLength', 'wallpanelLightingLength'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+            });
+            
+            // 清空材料选择
+            ['wallpanelMaterialSearch', 'wallpanelColumnMaterialSearch', 'wallpanelLightingMaterialSearch'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+            });
+            
+            delete selectedMaterials['wallpanel'];
+            delete selectedMaterials['column'];
+            delete selectedMaterials['lighting'];
+        }
+
+        // 清空输入
+        function clearInputs(type) {
+            const nameInput = document.getElementById(type + 'Name');
+            const searchInput = document.getElementById(type + 'MaterialSearch');
+            
+            if (nameInput) nameInput.value = '';
+            if (searchInput) searchInput.value = '';
+            
+            // 清空尺寸输入
+            switch (type) {
+                case 'wallpanel':
+                    ['wallpanelHeight', 'wallpanelWidth'].forEach(id => {
+                        const input = document.getElementById(id);
+                        if (input) input.value = '';
+                    });
+                    break;
+                case 'door':
+                    const doorQuantity = document.getElementById('doorQuantity');
+                    if (doorQuantity) doorQuantity.value = '1';
+                    break;
+                case 'column':
+                    const columnLength = document.getElementById('columnLength');
+                    if (columnLength) columnLength.value = '';
+                    break;
+                case 'lighting':
+                    const lightingLength = document.getElementById('lightingLength');
+                    if (lightingLength) lightingLength.value = '';
+                    break;
+                case 'stone':
+                    const stoneArea = document.getElementById('stoneArea');
+                    if (stoneArea) stoneArea.value = '';
+                    break;
+                case 'island':
+                    const islandLength = document.getElementById('islandLength');
+                    if (islandLength) islandLength.value = '';
+                    break;
+                case 'baseboard':
+                    const baseboardLength = document.getElementById('baseboardLength');
+                    if (baseboardLength) baseboardLength.value = '';
+                    break;
+            }
+            
+            // 清空选中的材料
+            delete selectedMaterials[type];
+        }
+
+        // 删除项目
+        function removeItem(id) {
+            quoteItems = quoteItems.filter(item => item.id !== id);
+            updateQuoteTable();
+        }
+
+        // 清空所有项目
+        function clearAllItems() {
+            if (confirm('确定要清空所有项目吗？')) {
+                quoteItems = [];
+                updateQuoteTable();
+            }
+        }
+
+        // 更新报价表格
+        function updateQuoteTable() {
+            const tbody = document.getElementById('quoteBody');
+            if (!tbody) {
+                console.error('找不到报价表格体');
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            let total = 0;
+            
+            quoteItems.forEach((item, index) => {
+                total += item.subtotal;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>
+                        <strong>${item.name}</strong>
+                        ${item.details ? `<br><small style="color: var(--secondary-text);">${item.details}</small>` : ''}
+                    </td>
+                    <td>${item.type}</td>
+                    <td><span style="color: var(--accent-blue); font-weight: 500;">${item.material}</span></td>
+                    <td>${item.quantity}</td>
+                    <td>¥${item.unitPrice.toFixed(2)}</td>
+                    <td>¥${item.subtotal.toFixed(2)}</td>
+                    <td>
+                        <button class="btn-danger btn-small" onclick="removeItem(${item.id})">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // 添加总计行
+            if (quoteItems.length > 0) {
+                const totalRow = document.createElement('tr');
+                totalRow.className = 'total-row';
+                totalRow.innerHTML = `
+                    <td colspan="6"><strong>总计</strong></td>
+                    <td><strong>¥${total.toFixed(2)}</strong></td>
+                    <td></td>
+                `;
+                tbody.appendChild(totalRow);
+            }
+            
+            // 更新总计
+            const totalElement = document.getElementById('totalAmount');
+            if (totalElement) {
+                totalElement.textContent = total.toFixed(2);
+            }
+            
+            console.log('报价表格更新完成，总金额:', total);
+        }
+
+        // 导出Excel
+        function exportToExcel() {
+            if (quoteItems.length === 0) {
+                alert('报价清单为空，无法导出！');
+                return;
+            }
+
+            // 创建Excel数据
+            const excelData = [];
+            
+            // 添加标题行
+            excelData.push(['乐山家具定制报价清单 - MongoDB高级算法版']);
+            excelData.push(['生成时间：' + new Date().toLocaleString('zh-CN')]);
+            excelData.push([]); // 空行
+            
+            // 添加表头
+            excelData.push(['序号', '空间产品名', '类型', '材质规格', '数量/面积', '单价(元)', '小计(元)', '详细说明']);
+            
+            // 添加数据行
+            let total = 0;
+            quoteItems.forEach((item, index) => {
+                total += item.subtotal;
+                excelData.push([
+                    index + 1,
+                    item.name,
+                    item.type,
+                    item.material,
+                    item.quantity,
+                    item.unitPrice.toFixed(2),
+                    item.subtotal.toFixed(2),
+                    item.details || ''
+                ]);
+            });
+            
+            // 添加总计行
+            excelData.push([]);
+            excelData.push(['总计金额', '', '', '', '', '', total.toFixed(2), '']);
+            
+            // 转换为CSV格式
+            const csvContent = excelData.map(row => 
+                row.map(cell => `"${cell}"`).join(',')
+            ).join('\n');
+            
+            // 创建Blob并下载
+            const blob = new Blob(['\uFEFF' + csvContent], { 
+                type: 'text/csv;charset=utf-8;' 
+            });
+            
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `乐山家具定制报价单_高级算法版_${new Date().toISOString().slice(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('Excel导出完成');
+        }
+
+        // 点击其他地方隐藏下拉菜单
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.material-selector')) {
+                hideAllMaterialDropdowns();
+            }
+        });
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('页面加载完成，系统初始化...');
+            await loadMaterialsFromMongoDB(); // 在这里加载材料
+            updateQuoteTable();
+            
+            // 初始化键盘支持
+            addKeyboardSupport();
+            
+            console.log('乐山家具定制报价系统MongoDB高级算法版初始化完成！');
+            
+            // 添加渐入动画
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
