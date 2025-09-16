@@ -8,6 +8,34 @@
   "timeout": 30,
   "memory": 512,
   "environment": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "MONGODB_USERNAME": "terry07590759",
+    "MONGODB_PASSWORD": "Na0E6iNR4p3gGNg1",
+    "MONGODB_CLUSTER": "cluster0.zqsy7.mongodb.net",
+    "MONGODB_DATABASE": "Leshan20250911",
+    "MONGODB_COLLECTION": "price_template"
+  },
+  "routes": [
+    {
+      "path": "/*",
+      "method": "ANY",
+      "target": "edge-function",
+      "function": "leshan-furniture-system"
+    }
+  ],
+  "caching": {
+    "static": {
+      "maxAge": 3600
+    },
+    "api": {
+      "maxAge": 300
+    }
+  },
+  "security": {
+    "cors": {
+      "origin": "*",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "headers": ["Content-Type", "Authorization"]
+    }
   }
 }

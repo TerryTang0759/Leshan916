@@ -164,9 +164,11 @@ const getHTML = () => `
 // EdgeOne主处理函数
 exports.handler = async (event, context) => {
     console.log('EdgeOne函数被调用:', JSON.stringify(event, null, 2));
+    console.log('Context:', JSON.stringify(context, null, 2));
     
     try {
         const { httpMethod, path, queryStringParameters } = event;
+        console.log(`处理请求: ${httpMethod} ${path}`);
         
         // 设置CORS头
         const headers = {
@@ -249,14 +251,20 @@ exports.handler = async (event, context) => {
         }
         
         // 404处理
+        console.log(`404错误: 路径 ${path} 不存在`);
         return {
             statusCode: 404,
-            headers,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
             body: JSON.stringify({
                 success: false,
                 error: '接口不存在',
                 path: path,
-                method: httpMethod
+                method: httpMethod,
+                timestamp: new Date().toISOString(),
+                availablePaths: ['/', '/health', '/api/prices']
             })
         };
         
