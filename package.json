@@ -10,7 +10,9 @@
     "start": "node server.js",
     "dev": "node server.js",
     "build": "echo 'No build step required'",
-    "vercel-build": "echo 'Build completed'"
+    "vercel-build": "echo 'Build completed'",
+    "edgeone-build": "echo 'EdgeOne build completed'",
+    "buiild": "echo 'EdgeOne build completed'"
   },
   "dependencies": {
     "express": "^4.18.2",

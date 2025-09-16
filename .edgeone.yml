@@ -1,0 +1,21 @@
+# EdgeOne 构建配置
+name: leshan-furniture-system
+runtime: nodejs18
+entry: index.js
+handler: handler
+
+# 构建配置
+build:
+  commands:
+    - npm install
+    - echo "EdgeOne build completed"
+
+# 环境变量
+environment:
+  NODE_ENV: production
+
+# 函数配置
+function:
+  timeout: 30
+  memory: 512
+  concurrency: 100
