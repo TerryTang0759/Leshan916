@@ -6,24 +6,6 @@
     "command": "npm run build",
     "output": "public"
   },
-  "functions": {
-    "index.js": {
-      "runtime": "nodejs18",
-      "handler": "handler"
-    }
-  },
-  "redirects": [
-    {
-      "source": "/api/*",
-      "destination": "/index.js",
-      "permanent": false
-    },
-    {
-      "source": "/*",
-      "destination": "/index.html",
-      "permanent": false
-    }
-  ],
   "headers": [
     {
       "source": "/api/*",

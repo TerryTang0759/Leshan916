@@ -19,7 +19,9 @@
     "mongodb": "^5.0.0",
     "cors": "^2.8.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^18.0.0"
+  },
   "keywords": ["furniture", "quote", "mongodb", "express"],
   "author": "乐山家具定制团队",
   "license": "MIT"
