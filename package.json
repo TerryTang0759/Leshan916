@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "echo 'No build step required'",
+    "build": "echo 'EdgeOne Pages build completed'",
     "vercel-build": "echo 'Build completed'",
     "edgeone-build": "echo 'EdgeOne build completed'",
     "buiild": "echo 'EdgeOne build completed'"
