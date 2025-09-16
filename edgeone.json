@@ -14,13 +14,11 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/index.html",
-      "statusCode": 200
+      "destination": "/index.html"
     },
     {
       "source": "/api/*",
-      "destination": "/node-functions/index.js",
-      "statusCode": 200
+      "destination": "/node-functions/index.js"
     }
   ],
   "headers": [
