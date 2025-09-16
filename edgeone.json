@@ -1,10 +1,15 @@
 {
   "name": "leshan-furniture-system",
   "version": "1.0.0",
-  "description": "乐山家具定制报价系统 - EdgeOne Pages配置",
+  "description": "乐山家具定制报价系统 - EdgeOne Pages Node Functions配置",
   "build": {
     "command": "npm run build",
     "output": "public"
+  },
+  "functions": {
+    "node-functions": {
+      "runtime": "nodejs20"
+    }
   },
   "headers": [
     {
