@@ -5,13 +5,5 @@
   "build": {
     "command": "npm run build",
     "output": "public"
-  },
-  "environment": {
-    "NODE_ENV": "production",
-    "MONGODB_USERNAME": "terry07590759",
-    "MONGODB_PASSWORD": "Na0E6iNR4p3gGNg1",
-    "MONGODB_CLUSTER": "cluster0.zqsy7.mongodb.net",
-    "MONGODB_DATABASE": "Leshan20250911",
-    "MONGODB_COLLECTION": "price_template"
   }
 }
