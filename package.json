@@ -9,8 +9,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "echo 'EdgeOne Pages build completed'",
-    "vercel-build": "echo 'Build completed'",
+    "build": "echo 'Build completed'",
+    "vercel-build": "echo 'Vercel build completed'",
     "edgeone-build": "echo 'EdgeOne build completed'",
     "buiild": "echo 'EdgeOne build completed'"
   },
