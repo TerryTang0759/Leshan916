@@ -4,19 +4,6 @@
   "installCommand": "npm install",
   "outputDirectory": "./public",
   "nodeVersion": "20.18.0",
-  "redirects": [
-    {
-      "source": "/api/*",
-      "destination": "/node-functions/index.js",
-      "statusCode": 200
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/*",
@@ -44,15 +31,6 @@
       ]
     },
     {
-      "source": "/api/*",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache"
-        }
-      ]
-    },
-    {
       "source": "/public/*",
       "headers": [
         {
@@ -60,16 +38,6 @@
           "value": "max-age=31536000"
         }
       ]
-    }
-  ],
-  "caches": [
-    {
-      "source": "/public/*",
-      "cacheTtl": 86400
-    },
-    {
-      "source": "/api/*",
-      "cacheTtl": 0
     }
   ]
 }
